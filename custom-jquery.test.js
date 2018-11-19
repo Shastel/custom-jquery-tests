@@ -120,8 +120,52 @@ describe('methods', () => {
     });
 
     describe('get', () => {
-        it('Should return array of matched element if no arguments provided', () => {});
-        it('Should return element by specified index if it provided', () => {});
-        it('Should count from end of collection if index is negative', () => {});
+        beforeEach(() => {
+            const elems = Array.from({ length: 4 }, (_, index) => {
+                const div = document.createElement('div');
+
+                div.dataset.index = index;
+
+                return div;
+            });
+
+            elems.forEach(el => document.body.appendChild(el));
+        });
+
+        it('Should return array of matched element if no arguments provided', () => {
+            const $div = $('div');
+            const collection = $div.get();
+
+            expect(collection).toBeInstanceOf(Array);
+            expect(collection.length).toBe(4);
+            collection.forEach(el => expect(el).toBeInstanceOf(HTMLElement));
+
+        });
+        it('Should return element by specified index if it provided', () => {
+            const $div = $('div');
+            const elem1 = $div.get(1);
+            const elem0 = $div.get(0);
+
+            expect(elem1).toBeInstanceOf(HTMLElement);
+            expect(elem1.dataset.index).toBe('1');
+
+            expect(elem0).toBeInstanceOf(HTMLElement);
+            expect(elem0.dataset.index).toBe('0');
+        });
+        it('Should count from end of collection if index is negative', () => {
+            const $div = $('div');
+            const elem = $div.get(-1);
+
+            expect(elem).toBeInstanceOf(HTMLElement);
+            expect(elem.dataset.index).toBe('3');
+        });
+
+        it('Should return undefined if index is grather than length or less than the negative number of elements', () => {
+            const max = $('div').get(Number.MAX_SAFE_INTEGER);
+            const min = $('div').get(-Number.MAX_SAFE_INTEGER);
+
+            expect(max).toBe(undefined);
+            expect(min).toBe(undefined);
+        });
     });
 });
