@@ -18,13 +18,79 @@ describe('constructor', () => {
 describe('methods', () => {
     describe('addClass', () => {
         // Adds the specified class(es) to each element in the set of matched elements.
+        // multiclass must be ignored
+        beforeEach(() => {
+            const mains = Array.from({ length: 4 }, () => document.createElement('main'));
 
-        it('should accept string as argument', () => {});
-        it('string may be space separated', () => {});
-        it('should accept function as argument', () => {});
-        it('function should be called with Integer index, String currentClassName', () => {});
-        it('function may return spaceseparated string', () => {});
-        it('this must be pointed on current html element', () => {});
+            document.body.appendChild(...mains);
+        });
+
+        it('should accept string as argument', () => {
+            const $main = $('main');
+
+            $main.addClass('class');
+
+            document.querySelectorAll('main').forEach(el => {
+                expect(el.className).toBe('class');
+            });
+        });
+
+        it('string may be space separated', () => {
+            const $main = $('main');
+
+            $main.addClass('class1 class2');
+
+            document.querySelectorAll('main').forEach(el => {
+                expect(el.className).toBe('class1 class2');
+            });
+        });
+
+        it('should accept function as argument', () => {
+            const $main = $('main');
+            const cb = () => 'wow-class';
+
+            $main.addClass(cb);
+
+            document.querySelectorAll('main').forEach(el => {
+                expect(el.className).toBe('wow-class');
+            });
+        });
+        it('function should be called with index and currentClassName', () => {
+            const $main = $('main');
+            const cb = jest.fn('wow-class-1');
+
+            $main.addClass('wow-class');
+            $main.addClass(cb);
+
+            cb.mock.calls.forEach((call, i) => {
+                expect(call[0]).toBe(i);
+                expect(call[1]).toBe('wow-class');
+            });
+        });
+        it('function may return spaceseparated string', () => {
+            const $main = $('main');
+            const cb = () => 'wow-class wow-class-1';
+
+            $main.addClass(cb);
+
+            document.querySelectorAll('main').forEach(el => {
+                expect(el.className).toBe('wow-class wow-class-1');
+            });
+        });
+        it('this must be pointed on current html element', () => {
+            const $main = $('main');
+            const mockCb = jest.fn(function(i, el) {
+                return el === this;
+            });
+
+            $main.addClass(mockCb);
+
+            mockCb.mock.results.forEach((result) => {
+                expect(result.value).toBe(true);
+            });
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
 
     describe('append', () => {
@@ -105,18 +171,96 @@ describe('methods', () => {
     });
 
     describe('each', () => {
+        beforeEach(() => {
+            const imgs = Array.from({ length: 50 }, () => document.createElement('img'));
+            imgs.forEach(img => document.body.appendChild(img));
+        });
         //Iterate over a jQuery object, executing a function for each matched element
-        it('Function should be called for each Element', () => {});
-        it('Function must be called with index and Element', () => {});
-        it('This must be pointed on current Element element', () => {});
+        it('Function should be called for each Element', () => {
+            const mockCb = jest.fn();
+
+            const $imgs = $('img');
+
+            $imgs.forEach(mockCb);
+
+            expect(mockCb.mock.calls.length).toBe(50);
+        });
+        it('Function must be called with index and Element', () => {
+            const mockCb = jest.fn();
+
+            const $imgs = $('img');
+
+            $imgs.forEach(mockCb);
+
+            mockCb.mock.calls.forEach((call, i) => {
+                expect(call[0]).toBe(i);
+                expect(call[1]).toBeInstanceOf(HTMLElement);
+            });
+        });
+        it('This must be pointed on current Element element', () => {
+            const mockCb = jest.fn(function(i, el) {
+                return el === this;
+            });
+
+            const $imgs = $('img');
+
+            $imgs.forEach(mockCb);
+
+            mockCb.mock.results.forEach((result) => {
+                expect(result.value).toBe(true);
+            });
+        });
         it('Iteration must be stopped when cb returns \'false\'', () => {});
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('remove', () => {
-        it('Should remove matched elements from DOM', () => {});
+        beforeEach(() => {
+            const divs = Array.from({ length: 6 }, (_, i) => {
+                const div = document.createElement('div');
+
+                div.id = `awersome-id-${i}`;
+
+                return div;
+            });
+            const spans = Array.from({ length: 6 }, () => document.createElement('span'));
+
+            [...divs, ...spans].forEach(el => document.body.appendChild(el));
+        });
+
+        it('Should remove matched elements from DOM', () => {
+            const $divs = $('div:not(:last-of-type)');
+
+            $divs.remove();
+
+            expect(document.querySelector('#awersome-id-5')).toBeInstanceOf(HTMLElement);
+            expect(document.querySelectorAll('span').length).toBe(6);
+            expect(document.querySelectorAll('div').length).toBe(1);
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('hasClass', () => {
         //Determine whether any of the matched elements are assigned the given class
-        it('Should return true if some element have class, false othervise', () => {});
+        beforeEach(() => {
+            const div = document.createElement('div');
+            const span = document.createElement('span');
+
+            div.classList.add('wow-div');
+            span.classList.add('wow-span');
+
+            [div, span].forEach(el => document.body.appendChild(el));
+        });
+
+        it('Should return true if some element have class, false othervise', () => {
+            const $collection = $('div,span');
+
+            expect($collection.hasClass('wow-p')).toBe(false);
+            expect($collection.hasClass('wow-div')).toBe(true);
+            expect($collection.hasClass('wow-span')).toBe(true);
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
 
     describe('get', () => {
@@ -167,5 +311,7 @@ describe('methods', () => {
             expect(max).toBe(undefined);
             expect(min).toBe(undefined);
         });
+
+        afterEach(() => document.body.innerHTML = '');
     });
 });
