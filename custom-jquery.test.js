@@ -7,7 +7,7 @@ const jroot = path.resolve(__dirname, process.env.ROOT_PATH);
 const $ = require(jroot);
 
 describe('constructor', () => {
-    it('call of constructo without new should be equal to \' new $\'', () => {
+    it('call of constructor without new should be equal to \' new $\'', () => {
         const $div = $('div');
         const $span = new $('span');
 
@@ -67,7 +67,7 @@ describe('methods', () => {
                 expect(call[1]).toBe('wow-class');
             });
         });
-        it('function may return spaceseparated string', () => {
+        it('function may return space-separated string', () => {
             const $main = $('main');
             const cb = () => 'wow-class wow-class-1';
 
@@ -109,7 +109,7 @@ describe('methods', () => {
     });
     describe('html', () => {
         //Get the HTML contents of the first element in the set of matched elements.
-        it('Should retrun current html of the first element if no arguments provided', () => {});
+        it('Should return current html of the first element if no arguments provided', () => {});
         //Set the HTML contents of each element in the set of matched elements.
         it('Should set string to all arguments', () => {});
         it('Should accept function as argument', () => {});
@@ -252,7 +252,7 @@ describe('methods', () => {
             [div, span].forEach(el => document.body.appendChild(el));
         });
 
-        it('Should return true if some element have class, false othervise', () => {
+        it('Should return true if some element has class, false otherwise', () => {
             const $collection = $('div,span');
 
             expect($collection.hasClass('wow-p')).toBe(false);
@@ -285,7 +285,7 @@ describe('methods', () => {
             collection.forEach(el => expect(el).toBeInstanceOf(HTMLElement));
 
         });
-        it('Should return element by specified index if it provided', () => {
+        it('Should return element by specified index if its provided', () => {
             const $div = $('div');
             const elem1 = $div.get(1);
             const elem0 = $div.get(0);
@@ -296,7 +296,7 @@ describe('methods', () => {
             expect(elem0).toBeInstanceOf(HTMLElement);
             expect(elem0.dataset.index).toBe('0');
         });
-        it('Should count from end of collection if index is negative', () => {
+        it('Should count from the end of collection if index is negative', () => {
             const $div = $('div');
             const elem = $div.get(-1);
 
@@ -304,7 +304,7 @@ describe('methods', () => {
             expect(elem.dataset.index).toBe('3');
         });
 
-        it('Should return undefined if index is grather than length or less than the negative number of elements', () => {
+        it('Should return undefined if index is greater than the length or less than the negative number of elements', () => {
             const max = $('div').get(Number.MAX_SAFE_INTEGER);
             const min = $('div').get(-Number.MAX_SAFE_INTEGER);
 
