@@ -22,7 +22,7 @@ describe('methods', () => {
         beforeEach(() => {
             const mains = Array.from({ length: 4 }, () => document.createElement('main'));
 
-            document.body.appendChild(...mains);
+            document.body.append(...mains);
         });
 
         it('should accept string as argument', () => {
@@ -131,10 +131,52 @@ describe('methods', () => {
         it('This must be pointed on current html element', () => {});
     });
     describe('children', () => {
-        // Get the children of each element in the set of matched elements, optionally filtered by a selector
+        const mainClassName = 'mainElt';
+        const childDivClassName = 'childDiv';
+        const selectedClassName = 'selected';
 
-        it('Should return collection of children', () => {});
-        it('Collection of children should be filtered by selector', () => {});
+        // Get the children of each element in the set of matched elements, optionally filtered by a selector
+        beforeEach(() => {
+            const main = document.createElement('main');
+            main.classList.add(mainClassName);
+
+            const childDiv1 = document.createElement('div');
+            const childDiv2 = document.createElement('div');
+            const childDiv3 = document.createElement('div');
+            const childDiv4 = document.createElement('div');
+
+            childDiv1.classList.add(childDivClassName, selectedClassName);
+            childDiv2.classList.add(childDivClassName, selectedClassName);
+            childDiv3.classList.add(childDivClassName);
+            childDiv4.classList.add(childDivClassName, selectedClassName);
+
+            main.append(childDiv1, childDiv2, childDiv3, childDiv4);
+            document.body.append(main);
+        });
+
+        it('Should return collection of children', () => {
+            const main = $(`main.${mainClassName}`);
+            const children = main.children();
+
+            expect(children.length).toBe(4);
+
+            children.each((i, childElt) => {
+                expect(childElt.classList.contains(childDivClassName)).toBe(true);
+            });
+        });
+        it('Collection of children should be filtered by selector', () => {
+            const main = $(`main.${mainClassName}`);
+            const children = main.children(`.${selectedClassName}`);
+
+            expect(children.length).toBe(3);
+
+            children.each((i, childElt) => {
+                expect(childElt.classList.contains(childDivClassName)).toBe(true);
+                expect(childElt.classList.contains(selectedClassName)).toBe(true);
+            });
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('css', () => {
         // Get the computed style properties for the first element in the set of matched elements.
