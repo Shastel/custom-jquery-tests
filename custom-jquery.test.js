@@ -95,18 +95,117 @@ describe('methods', () => {
 
     describe('append', () => {
         // Insert content, specified by the parameter, to the end of each element in the set of matched elements.
+        beforeEach(() => {
+            const divs = Array.from({ length: 3 }, () => document.createElement('div'));
 
-        it('Should insert string to the end of each element', () => {});
-        it('Should insert Element to the end of each element', () => {});
-        it('Should insert Array to the end of each element', () => {});
-        it('Should insert jQuery to the end of each element', () => {});
-        it('Should take infinite number of arguments', () => {});
-        it('Should accept function as param', () => {});
+            document.body.appendChild(...divs);
+        });
+
+        it('Should insert string to the end of each element', () => {
+            const $div = $('div');
+            const testString = 'new string';
+
+            $div.append(testString);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.innerHTML.includes(testString, -testString.length)).toBe(true);
+            });
+        });
+
+        it('Should insert Element to the end of each element', () => {
+            const $div = $('div');
+            const testElement = document.createElement('span');
+
+            $div.append(testElement);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toEqual(testElement);
+            });
+        });
+
+        it('Should insert Array to the end of each element', () => {
+            const $div = $('div');
+            $div.innerHTML = '<p>array</p>';
+            const testArray = [1, 2, 3];
+
+            $div.append(testArray);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.innerHTML.includes(testArray.join(''), -testArray.length)).toBe(true);
+            });
+        });
+
+        it('Should insert jQuery to the end of each element', () => {
+            const $div = $('div');
+            $div.innerHTML = '<p>hi</p>';
+            const element = document.createElement('p');
+            element.innerHTML = 'hello';
+            const testJquery = $(element);
+
+            $div.append(testJquery);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toEqual(element);
+            });
+        });
+
+        it('Should take infinite number of arguments', () => {
+            const $div = $('div');
+            const element = document.createElement('p');
+
+            for (let i = 0; i < 100; i++) {
+                element.innerHTML = i.toString();
+                $div.append(element);
+            }
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toEqual(element);
+            });
+        });
+
+        it('Should accept function as param', () => {
+            const $div = $('div');
+            const element = document.createElement('p');
+            element.innerHTML = 'function';
+            const cb = (el) => el;
+
+            $div.append(cb(element));
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toStrictEqual(element);
+            });
+        });
+
         // add mock on .html
-        it('Function must be called with index and current html content', () => {});
-        it('This must be pointed on current html element', () => {});
+        it('Function must be called with index and current html content', () => {
+            const $div = $('div');
+            const element = document.createElement('p');
+            element.innerHTML = 'Hello world!';
+            const cb = jest.fn(() => element);
 
+            $div.append(element);
+            $div.append(cb);
+
+            cb.mock.calls.forEach((call, i) => {
+                expect(call[0]).toBe(i);
+                expect(call[1]).toEqual('<p>Hello world!</p>');
+            });
+        });
+
+        it('This must be pointed on current html element', () => {
+            const $div = $('div');
+            const testElement = document.createElement('span');
+
+            $div.append(testElement);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toBeInstanceOf(HTMLSpanElement);
+            });
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
+
     describe('html', () => {
         //Get the HTML contents of the first element in the set of matched elements.
         it('Should return current html of the first element if no arguments provided', () => {});
