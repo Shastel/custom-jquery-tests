@@ -185,7 +185,6 @@ describe('methods', () => {
 
             $div.append(element);
             $div.append(cb);
-
             cb.mock.calls.forEach((call, i) => {
                 expect(call[0]).toBe(i);
                 expect(call[1]).toEqual('<p>Hello world!</p>');
@@ -202,7 +201,7 @@ describe('methods', () => {
                 expect(el.lastChild).toBeInstanceOf(HTMLSpanElement);
             });
         });
-
+      
         afterEach(() => document.body.innerHTML = '');
     });
 
@@ -256,13 +255,14 @@ describe('methods', () => {
         it('Should return collection of children', () => {
             const main = $(`main.${mainClassName}`);
             const children = main.children();
-
+          
             expect(children.length).toBe(4);
 
             children.each((i, childElt) => {
                 expect(childElt.classList.contains(childDivClassName)).toBe(true);
             });
         });
+      
         it('Collection of children should be filtered by selector', () => {
             const main = $(`main.${mainClassName}`);
             const children = main.children(`.${selectedClassName}`);
