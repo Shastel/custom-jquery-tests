@@ -22,7 +22,7 @@ describe('methods', () => {
         beforeEach(() => {
             const mains = Array.from({ length: 4 }, () => document.createElement('main'));
 
-            document.body.appendChild(...mains);
+            document.body.append(...mains);
         });
 
         it('should accept string as argument', () => {
@@ -95,18 +95,117 @@ describe('methods', () => {
 
     describe('append', () => {
         // Insert content, specified by the parameter, to the end of each element in the set of matched elements.
+        beforeEach(() => {
+            const divs = Array.from({ length: 3 }, () => document.createElement('div'));
 
-        it('Should insert string to the end of each element', () => { });
-        it('Should insert Element to the end of each element', () => { });
-        it('Should insert Array to the end of each element', () => { });
-        it('Should insert jQuery to the end of each element', () => { });
-        it('Should take infinite number of arguments', () => { });
-        it('Should accept function as param', () => { });
+            document.body.appendChild(...divs);
+        });
+
+        it('Should insert string to the end of each element', () => {
+            const $div = $('div');
+            const testString = 'new string';
+
+            $div.append(testString);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.innerHTML.includes(testString, -testString.length)).toBe(true);
+            });
+        });
+
+        it('Should insert Element to the end of each element', () => {
+            const $div = $('div');
+            const testElement = document.createElement('span');
+
+            $div.append(testElement);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toEqual(testElement);
+            });
+        });
+
+        it('Should insert Array to the end of each element', () => {
+            const $div = $('div');
+            $div.innerHTML = '<p>array</p>';
+            const testArray = [1, 2, 3];
+
+            $div.append(testArray);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.innerHTML.includes(testArray.join(''), -testArray.length)).toBe(true);
+            });
+        });
+
+        it('Should insert jQuery to the end of each element', () => {
+            const $div = $('div');
+            $div.innerHTML = '<p>hi</p>';
+            const element = document.createElement('p');
+            element.innerHTML = 'hello';
+            const testJquery = $(element);
+
+            $div.append(testJquery);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toEqual(element);
+            });
+        });
+
+        it('Should take infinite number of arguments', () => {
+            const $div = $('div');
+            const element = document.createElement('p');
+
+            for (let i = 0; i < 100; i++) {
+                element.innerHTML = i.toString();
+                $div.append(element);
+            }
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toEqual(element);
+            });
+        });
+
+        it('Should accept function as param', () => {
+            const $div = $('div');
+            const element = document.createElement('p');
+            element.innerHTML = 'function';
+            const cb = (el) => el;
+
+            $div.append(cb(element));
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toStrictEqual(element);
+            });
+        });
+
         // add mock on .html
-        it('Function must be called with index and current html content', () => { });
-        it('This must be pointed on current html element', () => { });
+        it('Function must be called with index and current html content', () => {
+            const $div = $('div');
+            const element = document.createElement('p');
+            element.innerHTML = 'Hello world!';
+            const cb = jest.fn(() => element);
 
+            $div.append(element);
+            $div.append(cb);
+
+            cb.mock.calls.forEach((call, i) => {
+                expect(call[0]).toBe(i);
+                expect(call[1]).toEqual('<p>Hello world!</p>');
+            });
+        });
+
+        it('This must be pointed on current html element', () => {
+            const $div = $('div');
+            const testElement = document.createElement('span');
+
+            $div.append(testElement);
+
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.lastChild).toBeInstanceOf(HTMLSpanElement);
+            });
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
+
     describe('html', () => {
         //Get the HTML contents of the first element in the set of matched elements.
         it('Should return current html of the first element if no arguments provided', () => { });
@@ -131,10 +230,52 @@ describe('methods', () => {
         it('This must be pointed on current html element', () => { });
     });
     describe('children', () => {
-        // Get the children of each element in the set of matched elements, optionally filtered by a selector
+        const mainClassName = 'mainElt';
+        const childDivClassName = 'childDiv';
+        const selectedClassName = 'selected';
 
-        it('Should return collection of children', () => { });
-        it('Collection of children should be filtered by selector', () => { });
+        // Get the children of each element in the set of matched elements, optionally filtered by a selector
+        beforeEach(() => {
+            const main = document.createElement('main');
+            main.classList.add(mainClassName);
+
+            const childDiv1 = document.createElement('div');
+            const childDiv2 = document.createElement('div');
+            const childDiv3 = document.createElement('div');
+            const childDiv4 = document.createElement('div');
+
+            childDiv1.classList.add(childDivClassName, selectedClassName);
+            childDiv2.classList.add(childDivClassName, selectedClassName);
+            childDiv3.classList.add(childDivClassName);
+            childDiv4.classList.add(childDivClassName, selectedClassName);
+
+            main.append(childDiv1, childDiv2, childDiv3, childDiv4);
+            document.body.append(main);
+        });
+
+        it('Should return collection of children', () => {
+            const main = $(`main.${mainClassName}`);
+            const children = main.children();
+
+            expect(children.length).toBe(4);
+
+            children.each((i, childElt) => {
+                expect(childElt.classList.contains(childDivClassName)).toBe(true);
+            });
+        });
+        it('Collection of children should be filtered by selector', () => {
+            const main = $(`main.${mainClassName}`);
+            const children = main.children(`.${selectedClassName}`);
+
+            expect(children.length).toBe(3);
+
+            children.each((i, childElt) => {
+                expect(childElt.classList.contains(childDivClassName)).toBe(true);
+                expect(childElt.classList.contains(selectedClassName)).toBe(true);
+            });
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('css', () => {
         // Get the computed style properties for the first element in the set of matched elements.
@@ -156,7 +297,6 @@ describe('methods', () => {
             document.body.appendChild(...mains);
         });
 
-        // Store arbitrary data associated with the matched elements
         it('Should accept name/value as args', () => {
             const $mains = $('main').data('foo', 'fo');
 
@@ -170,7 +310,6 @@ describe('methods', () => {
             expect($mains.data()['tinker']).toBe('shiva');
         });
 
-        //get
         it('Get data-* attribute of 1 matched element', () => {
             const $mains = $('main').data({ atr: 'foo', bee: 'piy' });
 
@@ -186,7 +325,6 @@ describe('methods', () => {
 
         afterEach(() => document.body.innerHTML = '');
     });
-
     describe('on', () => {
         it('on( events [, data ], handler )', () => { });
         it('on( events [, selector ] [, data ], handler )', () => { });
