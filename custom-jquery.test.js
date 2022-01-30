@@ -79,7 +79,7 @@ describe('methods', () => {
         });
         it('this must be pointed on current html element', () => {
             const $main = $('main');
-            const mockCb = jest.fn(function(i, el) {
+            const mockCb = jest.fn(function (i, el) {
                 return el === this;
             });
 
@@ -185,7 +185,6 @@ describe('methods', () => {
 
             $div.append(element);
             $div.append(cb);
-
             cb.mock.calls.forEach((call, i) => {
                 expect(call[0]).toBe(i);
                 expect(call[1]).toEqual('<p>Hello world!</p>');
@@ -202,32 +201,32 @@ describe('methods', () => {
                 expect(el.lastChild).toBeInstanceOf(HTMLSpanElement);
             });
         });
-
+      
         afterEach(() => document.body.innerHTML = '');
     });
 
     describe('html', () => {
         //Get the HTML contents of the first element in the set of matched elements.
-        it('Should return current html of the first element if no arguments provided', () => {});
+        it('Should return current html of the first element if no arguments provided', () => { });
         //Set the HTML contents of each element in the set of matched elements.
-        it('Should set string to all arguments', () => {});
-        it('Should accept function as argument', () => {});
-        it('Should accept function as param', () => {});
-        it('Function must be called with index and current html content', () => {});
-        it('This must be pointed on current html element', () => {});
+        it('Should set string to all arguments', () => { });
+        it('Should accept function as argument', () => { });
+        it('Should accept function as param', () => { });
+        it('Function must be called with index and current html content', () => { });
+        it('This must be pointed on current html element', () => { });
     });
     describe('attr', () => {
         //Get the value of an attribute for the first element in the set of matched elements
-        it('Should return value of specified attribute', () => {});
+        it('Should return value of specified attribute', () => { });
 
         //Set one or more attributes for the set of matched elements.
-        it('Should accept name/value as args', () => {});
-        it('Should remove atrribute if value is null', () => {});
+        it('Should accept name/value as args', () => { });
+        it('Should remove atrribute if value is null', () => { });
 
-        it('Should accept object as argument', () => {});
-        it('Should accept function as argument', () => {});
-        it('Function must be called with index and current attribute value', () => {});
-        it('This must be pointed on current html element', () => {});
+        it('Should accept object as argument', () => { });
+        it('Should accept function as argument', () => { });
+        it('Function must be called with index and current attribute value', () => { });
+        it('This must be pointed on current html element', () => { });
     });
     describe('children', () => {
         const mainClassName = 'mainElt';
@@ -256,13 +255,14 @@ describe('methods', () => {
         it('Should return collection of children', () => {
             const main = $(`main.${mainClassName}`);
             const children = main.children();
-
+          
             expect(children.length).toBe(4);
 
             children.each((i, childElt) => {
                 expect(childElt.classList.contains(childDivClassName)).toBe(true);
             });
         });
+      
         it('Collection of children should be filtered by selector', () => {
             const main = $(`main.${mainClassName}`);
             const children = main.children(`.${selectedClassName}`);
@@ -279,36 +279,63 @@ describe('methods', () => {
     });
     describe('css', () => {
         // Get the computed style properties for the first element in the set of matched elements.
-        it('Should accept string as argument', () => {});
-        it('Should accept Array as argument', () => {});
+        it('Should accept string as argument', () => { });
+        it('Should accept Array as argument', () => { });
         //Set one or more CSS properties for the set of matched elements.
-        it('Should accept object as param', () => {});
-        it('Should accept name/value as params', () => {});
-        it('Should append name/function as params', () => {});
-        it('Function must be called with index and current attribute value', () => {});
-        it('This must be pointed on current html element', () => {});
+        it('Should accept object as param', () => { });
+        it('Should accept name/value as params', () => { });
+        it('Should append name/function as params', () => { });
+        it('Function must be called with index and current attribute value', () => { });
+        it('This must be pointed on current html element', () => { });
     });
 
     describe('data', () => {
-        // Store arbitrary data associated with the matched elements
-        it('Should accept name/value as args', () => {});
-        it('Should accept object as argument', () => {});
+        beforeEach(() => {
+            const mains = Array.from({ length: 4 }, () => document.createElement('main'));
+            mains.forEach(el => el.dataset.jqry = 'here');
 
-        //get
-        it('Get data-* attribute of 1 matched element', () => {});
-        it('Get all data-* attributes of 1 matched element', () => {});
+            document.body.appendChild(...mains);
+        });
+
+        it('Should accept name/value as args', () => {
+            const $mains = $('main').data('foo', 'fo');
+
+            expect($mains.data()['foo']).toBe('fo');
+        });
+
+        it('Should accept object as argument', () => {
+            const $mains = $('main').data({ foo: 'fo', tinker: 'shiva' });
+
+            expect($mains.data()['foo']).toBe('fo');
+            expect($mains.data()['tinker']).toBe('shiva');
+        });
+
+        it('Get data-* attribute of 1 matched element', () => {
+            const $mains = $('main').data({ atr: 'foo', bee: 'piy' });
+
+            expect(Object.entries($mains.data()).length).toBe(2);
+            expect($mains.data()['atr']).toBe('foo');
+        });
+
+        it('Get all data-* attributes of 1 matched element', () => {
+            const $mains = $('main').data({ ou: 'wou', wow: 'ou' });
+
+            expect(Object.entries($mains.data()).length).toBe(3);
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('on', () => {
-        it('on( events [, data ], handler )', () => {});
-        it('on( events [, selector ] [, data ], handler )', () => {});
-        it('on( events [, selector ] [, data ] )', () => {});
+        it('on( events [, data ], handler )', () => { });
+        it('on( events [, selector ] [, data ], handler )', () => { });
+        it('on( events [, selector ] [, data ] )', () => { });
     });
     describe('one', () => {
         // same as .on but handler should be called only once.
 
-        it('on( events [, data ], handler )', () => {});
-        it('on( events [, selector ] [, data ], handler )', () => {});
-        it('on( events [, selector ] [, data ] )', () => {});
+        it('on( events [, data ], handler )', () => { });
+        it('on( events [, selector ] [, data ], handler )', () => { });
+        it('on( events [, selector ] [, data ] )', () => { });
     });
 
     describe('each', () => {
@@ -339,7 +366,7 @@ describe('methods', () => {
             });
         });
         it('This must be pointed on current Element element', () => {
-            const mockCb = jest.fn(function(i, el) {
+            const mockCb = jest.fn(function (i, el) {
                 return el === this;
             });
 
@@ -351,7 +378,7 @@ describe('methods', () => {
                 expect(result.value).toBe(true);
             });
         });
-        it('Iteration must be stopped when cb returns \'false\'', () => {});
+        it('Iteration must be stopped when cb returns \'false\'', () => { });
 
         afterEach(() => document.body.innerHTML = '');
     });
