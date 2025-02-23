@@ -237,11 +237,11 @@ describe('methods', () => {
         });
 
         it('Should accept function as param', () => {
-            const cb = jest.fn((i, prevHtml) => `<p>Updated text ${i}</p>`);
+            const cb = jest.fn(() => `<p>Updated text</p>`);
             $div.html(cb);
 
-            cb.mock.calls.forEach((call, i) => {
-                expect(call[1]).toEqual(`<p>Updated text ${i}</p>`);
+            document.querySelectorAll('div').forEach((el) => {
+                expect(el.innerHTML).toBe(`<p>Updated text</p>`);
             });
         });
 
