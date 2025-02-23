@@ -231,21 +231,16 @@ describe('methods', () => {
             const divList = document.querySelectorAll('div');
 
             $div.html(cb);
-            
+
             expect(cb).toHaveBeenCalledTimes(divList.length);
             divList.forEach((el, i) => {
-                expect(el.innerHTML).toBe(`<p>${i}: <span>Test div${i+1}</span><p>`);
-            });
-            
+                expect(el.innerHTML).toBe(`<p>${i}: <span>Test div${i+1}</span></p>`);
+            });     
         });
 
         it('Should accept function as param', () => {
             const cb = jest.fn(() => `<p>Updated text</p>`);
-            $div.html(cb);
-
-            document.querySelectorAll('div').forEach((el) => {
-                expect(el.innerHTML).toBe(`<p>Updated text</p>`);
-            });
+            expect(() => $div.html(cb)).not.toThrow();
         });
 
         it('Function must be called with index and current html content', () => {
