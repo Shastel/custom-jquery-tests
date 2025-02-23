@@ -227,11 +227,14 @@ describe('methods', () => {
         });
 
         it('Should accept function as argument', () => {
-            const cb = jest.fn((i, prevHtml) => prevHtml + ' updated');
-            $div.html(cb);
+            const cb = jest.fn((index, prevHtml) => `<p>${index}: ${prevHtml}</p>`);
+            const divList = document.querySelectorAll('div');
 
-            cb.mock.calls.forEach((call, i) => {
-                expect(call[1]).toEqual(`<span>Test div${i+1}</span> updated`);
+            $div.html(cb);
+            
+            expect(cb).toHaveBeenCalledTimes(divList.length);
+            divList.forEach((el, i) => {
+                expect(el.innerHTML).toBe(`<p>${i}: <span>Test div${i+1}</span><p>`);
             });
             
         });
