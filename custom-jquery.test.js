@@ -326,16 +326,140 @@ describe('methods', () => {
         afterEach(() => document.body.innerHTML = '');
     });
     describe('on', () => {
-        it('on( events [, data ], handler )', () => { });
-        it('on( events [, selector ] [, data ], handler )', () => { });
-        it('on( events [, selector ] [, data ] )', () => { });
-    });
-    describe('one', () => {
-        // same as .on but handler should be called only once.
+        let $div, mockHandler, data;
 
-        it('on( events [, data ], handler )', () => { });
-        it('on( events [, selector ] [, data ], handler )', () => { });
-        it('on( events [, selector ] [, data ] )', () => { });
+        beforeEach(() => {
+            $div = document.createElement('div');
+            $div.innerHTML = '<p>click me</p>';
+            document.body.appendChild($div);
+
+            mockHandler = jest.fn();
+            data = { foo: 'bar' };
+        });
+
+        afterEach(() => {
+            document.body.innerHTML = '';
+        });
+
+        describe('on( events [, data ], handler )', () => {
+            it('should add event handler with data and trigger it on every event', () => {
+                $div.on('click', data, mockHandler);
+
+                $div.dispatchEvent(new Event('click'));
+                $div.dispatchEvent(new Event('click'));
+
+                expect(mockHandler).toHaveBeenCalledTimes(2);
+                expect(mockHandler.mock.calls[0][0].data).toEqual(data);
+            });
+
+            it('should handle multiple events on the same element', () => {
+                const mockMouseHandler = jest.fn();
+                $div.on('click', data, mockHandler);
+                $div.on('mouseenter', data, mockMouseHandler);
+
+                $div.dispatchEvent(new Event('click'));
+                $div.dispatchEvent(new Event('mouseenter'));
+
+                expect(mockHandler).toHaveBeenCalledTimes(1);
+                expect(mockMouseHandler).toHaveBeenCalledTimes(1);
+            });
+
+            it('should handle null or undefined arguments gracefully', () => {
+                $div.on('click', null, mockHandler);
+                $div.dispatchEvent(new Event('click'));
+
+                expect(mockHandler).toHaveBeenCalledTimes(1);
+            });
+        });
+
+        describe('on( events [, selector ] [, data ], handler )', () => {
+            it('should add event handler using delegation with data and trigger it on every event', () => {
+                const $p = $div.querySelector('p');
+
+                $div.on('click', 'p', data, mockHandler);
+                $p.dispatchEvent(new Event('click'));
+                $p.dispatchEvent(new Event('click'));
+
+                expect(mockHandler).toHaveBeenCalledTimes(2);
+                expect(mockHandler.mock.calls[0][0].data).toEqual(data);
+            });
+
+            it('should trigger event handler on the parent element', () => {
+                const $p = $div.querySelector('p');
+
+                $div.on('click', 'p', data, mockHandler);
+                $p.dispatchEvent(new Event('click'), { bubbles: true });
+
+                expect(mockHandler).toHaveBeenCalledTimes(1);
+                expect(mockHandler.mock.calls[0][0].data).toEqual(data);
+            });
+        });
+
+        describe('on( events [, selector ] [, data ] )', () => {
+            it('should pass event data when an event occurs', () => {
+                const $p = $div.querySelector('p');
+
+                $div.on('click', 'p', data);
+                $p.dispatchEvent(new Event('click'), { bubbles: true });
+
+                expect(mockHandler).not.toHaveBeenCalled();
+                expect($p.dataset.foo).toEqual(data.foo);
+            });
+        });
+    });
+
+    describe('one', () => {
+        let $div, mockHandler, data;
+
+        beforeEach(() => {
+            $div = document.createElement('div');
+            $div.innerHTML = '<p>click me</p>';
+            document.body.appendChild($div);
+
+            mockHandler = jest.fn();
+            data = { foo: 'bar' };
+        });
+
+        afterEach(() => {
+            document.body.innerHTML = '';
+        });
+
+        describe('one( events [, data ], handler )', () => {
+            it('should add event handler with data and trigger it only once', () => {
+                $div.one('click', data, mockHandler);
+
+                $div.dispatchEvent(new Event('click'));
+                $div.dispatchEvent(new Event('click'));
+
+                expect(mockHandler).toHaveBeenCalledTimes(1);
+                expect(mockHandler.mock.calls[0][0].data).toEqual(data);
+            });
+        });
+
+        describe('one( events [, selector ] [, data ], handler )', () => {
+            it('should add event handler using delegation with data and trigger it only once', () => {
+                const $p = $div.querySelector('p');
+
+                $div.one('click', 'p', data, mockHandler);
+                $div.dispatchEvent(new Event('click'));
+                $div.dispatchEvent(new Event('click'));
+
+                expect(mockHandler).toHaveBeenCalledTimes(1);
+                expect(mockHandler.mock.calls[0][0].data).toEqual(data);
+            });
+        });
+
+        describe('one( events [, selector ] [, data ] )', () => {
+            it('should store data but not bind event handler when no handler is provided', () => {
+                const $p = $div.querySelector('p');
+
+                $div.one('click', 'p', data);
+                $p.dispatchEvent(new Event('click'), { bubbles: true });
+
+                expect(mockHandler).not.toHaveBeenCalled();
+                expect($p.dataset.foo).toEqual(data.foo);
+            });
+        });
     });
 
     describe('each', () => {
