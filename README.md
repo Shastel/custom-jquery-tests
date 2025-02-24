@@ -1,14 +1,14 @@
 # custom-jquery-tests
 
-This repository contains the tests for a 'custom' version of the lodash library.
-You can find [task here](https://rolling-scopes-school.github.io/epam-short-track/core-js-ts/tasks/custom-lodash/).
+This repository contains the tests for a 'custom' version of the jquery library.
+You can find [task here](https://rolling-scopes-school.github.io/epam-short-track/core-js-ts/tasks/custom-jquery/).
 Follow the recommendations below.
 
 ## How to run tests
 
 To run this tests clone this repository
 ```sh
-git clone git@github.comShastelcustom-jquery-tests.git
+git clone git@github.com:Shastel/custom-jquery-tests.git
 ```
 
 Open directory
