@@ -216,17 +216,60 @@ describe('methods', () => {
         it('This must be pointed on current html element', () => { });
     });
     describe('attr', () => {
+        let $div;
+        let divElement;
+
+        beforeEach(() => {
+            document.body.innerHTML = '<div id="test"></div>'
+            divElement = document.querySelector('div');
+            $div = $('div');
+        });
         //Get the value of an attribute for the first element in the set of matched elements
-        it('Should return value of specified attribute', () => { });
+        it('Should return value of specified attribute', () => {
+            expect($div.attr('id')).toBe('test');
+        });
 
         //Set one or more attributes for the set of matched elements.
-        it('Should accept name/value as args', () => { });
-        it('Should remove atrribute if value is null', () => { });
+        it('Should accept name/value as args', () => {
+            $div.attr('data-test', 'value');
+            expect(divElement.getAttribute('data-test')).toBe('value');
+        });
+        it('Should remove attribute if value is null', () => {
+            $div.attr('id', null);
+            expect(divElement.hasAttribute('id')).toBe(false);
+        });
+        it('Should accept object as argument', () => {
+            $div.attr({ 'data-test': 'value', 'role': 'button' });
 
-        it('Should accept object as argument', () => { });
-        it('Should accept function as argument', () => { });
-        it('Function must be called with index and current attribute value', () => { });
-        it('This must be pointed on current html element', () => { });
+            expect(divElement.getAttribute('data-test')).toBe('value');
+            expect(divElement.getAttribute('role')).toBe('button');
+        });
+        it('Should accept function as argument', () => {
+            const cb = jest.fn((index, prevAttr) => `${prevAttr}-new${index + 1}`);
+
+            $div.attr('id', cb);
+            expect(cb).toHaveBeenCalledTimes(1);
+            expect(divElement.getAttribute('id')).toBe('test-new1');
+        });
+        it('Function must be called with index and current attribute value', () => {
+            const cb = jest.fn((index, prevAttr) => prevAttr + '-new');
+
+            $div.attr('id', cb);
+
+            expect(cb).toHaveBeenCalledWith(0, 'test');
+            expect(divElement.getAttribute('id')).toBe('test-new');
+            
+        });
+        it('This must be pointed on current html element', () => {
+            const cb = jest.fn(function () {
+                expect(this).toBeInstanceOf(HTMLDivElement);
+            });
+            
+            $div.attr('id', cb);
+            expect(cb).toHaveBeenCalledTimes(1); 
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('children', () => {
         const mainClassName = 'mainElt';
