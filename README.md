@@ -1,7 +1,7 @@
 # custom-jquery-tests
 
 This repository contains the tests for a 'custom' version of the jquery library.
-You can find [task here](https://rolling-scopes-school.github.io/epam-short-track/core-js-ts/tasks/custom-jquery/).
+You can find [task here](https://github.com/rolling-scopes-school/RS-Short-Track/wiki/4.-Custom-Jquery).
 Follow the recommendations below.
 
 ## How to run tests
