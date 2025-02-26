@@ -369,15 +369,108 @@ describe('methods', () => {
         afterEach(() => document.body.innerHTML = '');
     });
     describe('css', () => {
+        let testDiv;
+        
+        beforeEach(() => {
+            document.body.innerHTML = '';
+            testDiv = document.createElement('div');
+            document.body.appendChild(testDiv);
+        });
+
+        afterEach(() => {
+            testDiv.remove();
+        });
+
         // Get the computed style properties for the first element in the set of matched elements.
-        it('Should accept string as argument', () => { });
-        it('Should accept Array as argument', () => { });
+        it('Should accept string as argument', () => {
+            const testColor = 'red';
+            testDiv.style.color = testColor;
+
+            const $div = $('div');
+            const color = $div.css('color');
+
+            expect(color).toBe(testColor);
+        });
+
+        it('Should accept Array as argument', () => {
+            const $div = $('div');
+            const testColor = 'red';
+            const testBackgroundColor = 'black';
+            testDiv.style.color = testColor;
+            testDiv.style.backgroundColor = testBackgroundColor;
+
+            const styles = $div.css(['color', 'background-color']);
+
+            expect(styles).toEqual({
+                color: testColor,
+                'background-color': testBackgroundColor,
+            });
+        });
+
         //Set one or more CSS properties for the set of matched elements.
-        it('Should accept object as param', () => { });
-        it('Should accept name/value as params', () => { });
-        it('Should append name/function as params', () => { });
-        it('Function must be called with index and current attribute value', () => { });
-        it('This must be pointed on current html element', () => { });
+        it('Should accept object as param', () => {
+            const testColor = 'orange';
+            const testBackgroundColor = 'blue';
+
+            const $div = $('div');
+            $div.css({
+                color: testColor,
+                'background-color': testBackgroundColor,
+            });
+
+            const div = document.querySelector('div');
+            expect(div.style.color).toBe(testColor);
+            expect(div.style.backgroundColor).toBe(testBackgroundColor);
+        });
+
+        it('Should accept name/value as params', () => {
+            const testColor = 'blue';
+
+            const $div = $('div');
+            $div.css('color', testColor);
+
+            const div = document.querySelector('div');
+            expect(div.style.color).toBe(testColor);
+        });
+        
+        it('Should append name/function as params', () => {
+            const testColor = 'green';
+
+            const $div = $('div');
+            const colorFn = () => testColor;
+            $div.css('color', colorFn);
+
+            const div = document.querySelector('div');
+            expect(div.style.color).toBe(testColor);
+        });
+
+        it('Function must be called with index and current attribute value', () => {
+            const initialColor = 'yellow';
+            const newColor = 'red';
+            testDiv.style.color = initialColor;
+
+            const $div = $('div');
+            const colorFn = jest.fn((i, currentColor) => newColor);
+            $div.css('color', colorFn);
+
+            colorFn.mock.calls.forEach((call, i) => {
+                expect(call[0]).toBe(i);
+                expect(call[1]).toBe(initialColor);
+            });
+        });
+        
+        it('This must be pointed on current html element', () => {
+            const $div = $('div');
+            const colorFn = jest.fn(function (i, el) {
+                return el === this;
+            });
+    
+            $div.css('color', colorFn);
+    
+            colorFn.mock.results.forEach((result) => {
+                expect(result.value).toBe(true);
+            });
+        });
     });
 
     describe('data', () => {
