@@ -206,14 +206,62 @@ describe('methods', () => {
     });
 
     describe('html', () => {
+        let $div;
+
+        beforeEach(() => {
+            document.body.innerHTML = '<div><span>Test div1</span></div><div><span>Test div2</span></div>';
+            $div = $('div');
+        });
+
         //Get the HTML contents of the first element in the set of matched elements.
-        it('Should return current html of the first element if no arguments provided', () => { });
+        it('Should return current html of the first element if no arguments provided', () => {
+            expect($div.html()).toBe('<span>Test div1</span>');
+        });
+        
         //Set the HTML contents of each element in the set of matched elements.
-        it('Should set string to all arguments', () => { });
-        it('Should accept function as argument', () => { });
-        it('Should accept function as param', () => { });
-        it('Function must be called with index and current html content', () => { });
-        it('This must be pointed on current html element', () => { });
+        it('Should set string to all arguments', () => {
+            $div.html('<p>Updated text</p>');
+            document.querySelectorAll('div').forEach(el => {
+                expect(el.innerHTML).toBe('<p>Updated text</p>');
+            });
+        });
+
+        it('Should accept function as argument', () => {
+            const cb = jest.fn((index, prevHtml) => `<p>${index}: ${prevHtml}</p>`);
+            const divList = document.querySelectorAll('div');
+
+            $div.html(cb);
+
+            expect(cb).toHaveBeenCalledTimes(divList.length);
+            divList.forEach((el, i) => {
+                expect(el.innerHTML).toBe(`<p>${i}: <span>Test div${i+1}</span></p>`);
+            });     
+        });
+
+        it('Should accept function as param', () => {
+            const cb = jest.fn(() => `<p>Updated text</p>`);
+            expect(() => $div.html(cb)).not.toThrow();
+        });
+
+        it('Function must be called with index and current html content', () => {
+            const cb = jest.fn((index, html) => `<p>${index}: ${html}</p>`);
+            $div.html(cb);
+
+            cb.mock.calls.forEach((call, i) => {
+                expect(call[0]).toBe(i);
+                expect(call[1]).toEqual(`<span>Test div${i+1}</span>`);
+            });
+        });
+
+        it('This must be pointed on current html element', () => {
+            const cb = jest.fn(function () {
+                expect(this).toBeInstanceOf(HTMLDivElement);
+            });
+    
+            $div.html(cb);
+        });
+
+        afterEach(() => document.body.innerHTML = '');
     });
     describe('attr', () => {
         //Get the value of an attribute for the first element in the set of matched elements
