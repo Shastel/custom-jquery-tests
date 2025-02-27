@@ -466,7 +466,7 @@ describe('methods', () => {
       testDiv.style.color = initialColor;
 
       const $div = $('div');
-      const colorFn = jest.fn((i, currentColor) => newColor);
+      const colorFn = jest.fn(() => newColor);
       $div.css('color', colorFn);
 
       colorFn.mock.calls.forEach((call, i) => {
@@ -712,7 +712,7 @@ describe('methods', () => {
         p.dispatchEvent(new Event('click'), { bubbles: true });
 
         expect(mockHandler).not.toHaveBeenCalled();
-        expect($p.dataset.foo).toEqual(data.foo);
+        expect(p.dataset.foo).toEqual(data.foo);
       });
     });
   });
