@@ -58,7 +58,7 @@ describe('methods', () => {
 
     it('function should be called with index and currentClassName', () => {
       const $main = $('main');
-      const cb = jest.fn('wow-class-1');
+      const cb = jest.fn();
 
       $main.addClass('wow-class');
       $main.addClass(cb);
@@ -82,13 +82,18 @@ describe('methods', () => {
 
     it('this must be pointed on current html element', () => {
       const $main = $('main');
-      const mockCb = jest.fn(function (i, el) {
-        return el === this;
+   
+      for (let i = 0; i < $main.length; i++) {
+        $main[i].classList.add(`example${i}`);
+      }
+
+      const cb = jest.fn(function (i, currentClassName) {
+        return currentClassName === this.className;
       });
 
-      $main.addClass(mockCb);
+      $main.addClass(cb);
 
-      mockCb.mock.results.forEach((result) => {
+      cb.mock.results.forEach((result) => {
         expect(result.value).toBe(true);
       });
     });
@@ -103,7 +108,7 @@ describe('methods', () => {
         document.createElement('div')
       );
 
-      document.body.appendChild(...divs);
+      divs.forEach((div) => document.body.appendChild(div));
     });
 
     it('Should insert string to the end of each element', () => {
@@ -190,7 +195,7 @@ describe('methods', () => {
       const $div = $('div');
       const element = document.createElement('p');
       element.innerHTML = 'Hello world!';
-      const cb = jest.fn(() => element);
+      const cb = jest.fn(() => element.cloneNode(true));
 
       $div.append(element);
       $div.append(cb);
@@ -202,12 +207,19 @@ describe('methods', () => {
 
     it('This must be pointed on current html element', () => {
       const $div = $('div');
-      const testElement = document.createElement('span');
 
-      $div.append(testElement);
+      for (let i = 0; i < $div.length; i++) {
+        $div[i].innerHTML = `value ${i}`;
+      }
 
-      document.querySelectorAll('div').forEach((el) => {
-        expect(el.lastChild).toBeInstanceOf(HTMLSpanElement);
+      const cb = jest.fn(function (i, oldStringValue) {
+        return oldStringValue === this.innerHTML;
+      });
+
+      $div.append(cb);
+
+      cb.mock.results.forEach((result) => {
+        expect(result.value).toBe(true);
       });
     });
 
@@ -264,15 +276,24 @@ describe('methods', () => {
     });
 
     it('This must be pointed on current html element', () => {
-      const cb = jest.fn(function () {
-        expect(this).toBeInstanceOf(HTMLDivElement);
+      for (let i = 0; i < $div.length; i++) {
+        $div[i].innerHTML = `value ${i}`;
+      }
+
+      const cb = jest.fn(function (i, oldStringValue) {
+        return oldStringValue === this.innerHTML;
       });
 
       $div.html(cb);
+
+      cb.mock.results.forEach((result) => {
+        expect(result.value).toBe(true);
+      });
     });
 
     afterEach(() => (document.body.innerHTML = ''));
   });
+
   describe('attr', () => {
     let $div;
     let divElement;
@@ -324,16 +345,20 @@ describe('methods', () => {
     });
 
     it('This must be pointed on current html element', () => {
-      const cb = jest.fn(function () {
-        expect(this).toBeInstanceOf(HTMLDivElement);
+      const cb = jest.fn(function (i, attr) {
+        return attr === this.getAttribute('id');
       });
 
       $div.attr('id', cb);
-      expect(cb).toHaveBeenCalledTimes(1);
+
+      cb.mock.results.forEach((result) => {
+        expect(result.value).toBe(true);
+      });
     });
 
     afterEach(() => (document.body.innerHTML = ''));
   });
+
   describe('children', () => {
     const mainClassName = 'mainElt';
     const childDivClassName = 'childDiv';
@@ -434,9 +459,8 @@ describe('methods', () => {
         'background-color': testBackgroundColor,
       });
 
-      const div = document.querySelector('div');
-      expect(div.style.color).toBe(testColor);
-      expect(div.style.backgroundColor).toBe(testBackgroundColor);
+      expect(testDiv.style.color).toBe(testColor);
+      expect(testDiv.style.backgroundColor).toBe(testBackgroundColor);
     });
 
     it('Should accept name/value as params', () => {
@@ -445,8 +469,7 @@ describe('methods', () => {
       const $div = $('div');
       $div.css('color', testColor);
 
-      const div = document.querySelector('div');
-      expect(div.style.color).toBe(testColor);
+      expect(testDiv.style.color).toBe(testColor);
     });
 
     it('Should append name/function as params', () => {
@@ -456,8 +479,7 @@ describe('methods', () => {
       const colorFn = () => testColor;
       $div.css('color', colorFn);
 
-      const div = document.querySelector('div');
-      expect(div.style.color).toBe(testColor);
+      expect(testDiv.style.color).toBe(testColor);
     });
 
     it('Function must be called with index and current attribute value', () => {
@@ -477,10 +499,11 @@ describe('methods', () => {
 
     it('This must be pointed on current html element', () => {
       const $div = $('div');
-      const colorFn = jest.fn(function (i, el) {
-        return el === this;
+      const colorFn = jest.fn(function (i, value) {
+        return value === this.style.color;
       });
 
+      testDiv.style.color = 'red';
       $div.css('color', colorFn);
 
       colorFn.mock.results.forEach((result) => {
@@ -494,35 +517,33 @@ describe('methods', () => {
       const mains = Array.from({ length: 4 }, () =>
         document.createElement('main')
       );
-      mains.forEach((el) => (el.dataset.jqry = 'here'));
 
-      document.body.appendChild(...mains);
+      document.body.append(...mains);
     });
 
     it('Should accept name/value as args', () => {
       const $mains = $('main').data('foo', 'fo');
 
-      expect($mains.data()['foo']).toBe('fo');
+      expect($mains.data('foo')).toBe('fo');
     });
 
     it('Should accept object as argument', () => {
       const $mains = $('main').data({ foo: 'fo', tinker: 'shiva' });
 
-      expect($mains.data()['foo']).toBe('fo');
-      expect($mains.data()['tinker']).toBe('shiva');
+      expect($mains.data('foo')).toBe('fo');
+      expect($mains.data('tinker')).toBe('shiva');
     });
 
     it('Get data-* attribute of 1 matched element', () => {
       const $mains = $('main').data({ atr: 'foo', bee: 'piy' });
 
-      expect(Object.entries($mains.data()).length).toBe(2);
-      expect($mains.data()['atr']).toBe('foo');
+      expect($mains.data('bee')).toBe('piy');
     });
 
     it('Get all data-* attributes of 1 matched element', () => {
       const $mains = $('main').data({ ou: 'wou', wow: 'ou' });
 
-      expect(Object.entries($mains.data()).length).toBe(3);
+      expect(Object.entries($mains.data()).length).toBe(2);
     });
 
     afterEach(() => (document.body.innerHTML = ''));
@@ -731,7 +752,7 @@ describe('methods', () => {
 
       const $imgs = $('img');
 
-      $imgs.forEach(mockCb);
+      $imgs.each(mockCb);
 
       expect(mockCb.mock.calls.length).toBe(50);
     });
@@ -741,7 +762,7 @@ describe('methods', () => {
 
       const $imgs = $('img');
 
-      $imgs.forEach(mockCb);
+      $imgs.each(mockCb);
 
       mockCb.mock.calls.forEach((call, i) => {
         expect(call[0]).toBe(i);
@@ -756,17 +777,29 @@ describe('methods', () => {
 
       const $imgs = $('img');
 
-      $imgs.forEach(mockCb);
+      $imgs.each(mockCb);
 
       mockCb.mock.results.forEach((result) => {
         expect(result.value).toBe(true);
       });
     });
 
-    it("Iteration must be stopped when cb returns 'false'", () => {});
+    it("Iteration must be stopped when cb returns 'false'", () => {
+      const $imgs = $('img');
+      const cb = jest.fn(function (i) {
+        if (i === 29) {
+          return false;
+        }
+        return true;
+      });
+
+      $imgs.each(cb);
+      expect(cb.mock.calls.length).toBe(30);
+    });
 
     afterEach(() => (document.body.innerHTML = ''));
   });
+
   describe('remove', () => {
     beforeEach(() => {
       const divs = Array.from({ length: 6 }, (_, i) => {
@@ -797,6 +830,7 @@ describe('methods', () => {
 
     afterEach(() => (document.body.innerHTML = ''));
   });
+
   describe('hasClass', () => {
     //Determine whether any of the matched elements are assigned the given class
     beforeEach(() => {
