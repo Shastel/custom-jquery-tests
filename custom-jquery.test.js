@@ -560,12 +560,12 @@ describe('methods', () => {
         const $div = $('div');
         const mockMouseHandler = jest.fn();
         $div.on('click', data, mockHandler);
-        $div.on('mouseenter', data, mockMouseHandler);
+        $div.on('contextmenu', data, mockMouseHandler);
 
         elementDiv.dispatchEvent(new Event('click'));
         elementDiv.dispatchEvent(new Event('click'));
-        elementDiv.dispatchEvent(new Event('mouseenter'));
-        elementDiv.dispatchEvent(new Event('mouseenter'));
+        elementDiv.dispatchEvent(new Event('contextmenu'));
+        elementDiv.dispatchEvent(new Event('contextmenu'));
 
         expect(mockHandler).toHaveBeenCalledTimes(2);
         expect(mockMouseHandler).toHaveBeenCalledTimes(2);
@@ -588,8 +588,8 @@ describe('methods', () => {
         const p = elementDiv.querySelector('p');
 
         $div.on('click', 'p', data, mockHandler);
-        p.dispatchEvent(new Event('click'));
-        p.dispatchEvent(new Event('click'));
+        p.dispatchEvent(new Event('click', { bubbles: true }));
+        p.dispatchEvent(new Event('click', { bubbles: true }));
 
         expect(mockHandler).toHaveBeenCalledTimes(2);
         expect(mockHandler.mock.calls[0][0].data).toEqual(data);
@@ -600,8 +600,8 @@ describe('methods', () => {
         const p = elementDiv.querySelector('p');
 
         $div.on('click', 'p', data, mockHandler);
-        p.dispatchEvent(new Event('click'), { bubbles: true });
-        p.dispatchEvent(new Event('click'), { bubbles: true });
+        p.dispatchEvent(new Event('click', { bubbles: true }));
+        p.dispatchEvent(new Event('click', { bubbles: true }));
 
         expect(mockHandler).toHaveBeenCalledTimes(2);
         expect(mockHandler.mock.calls[0][0].data).toEqual(data);
@@ -609,16 +609,35 @@ describe('methods', () => {
     });
 
     describe('on( events [, selector ] [, data ] )', () => {
-      it('should pass event data when an event occurs', () => {
+      it('should handle multiple event types with a plain object and pass data to handlers', () => {
         const $div = $('div');
         const p = elementDiv.querySelector('p');
-        const $p = $('p');
 
-        $div.on('click', 'p', data);
-        p.dispatchEvent(new Event('click'), { bubbles: true });
+        const mockClickHandler = jest.fn((event) => {
+          expect(event.data).toEqual(data);
+        });
 
-        expect(mockHandler).not.toHaveBeenCalled();
-        expect($p.dataset.foo).toEqual(data.foo);
+        const mockContextHandler = jest.fn((event) => {
+          expect(event.data).toEqual(data);
+        });
+
+        $div.on(
+          {
+            click: mockClickHandler,
+            contextmenu: mockContextHandler,
+          },
+          'p',
+          data
+        );
+
+        const clickEvent = new Event('click', { bubbles: true });
+        p.dispatchEvent(clickEvent);
+
+        const contextEvent = new Event('contextmenu', { bubbles: true });
+        p.dispatchEvent(contextEvent);
+
+        expect(mockClickHandler).toHaveBeenCalledTimes(1);
+        expect(mockContextHandler).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -655,12 +674,12 @@ describe('methods', () => {
         const $div = $('div');
         const mockMouseHandler = jest.fn();
         $div.one('click', data, mockHandler);
-        $div.one('mouseenter', data, mockMouseHandler);
+        $div.one('contextmenu', data, mockMouseHandler);
 
         elementDiv.dispatchEvent(new Event('click'));
         elementDiv.dispatchEvent(new Event('click'));
-        elementDiv.dispatchEvent(new Event('mouseenter'));
-        elementDiv.dispatchEvent(new Event('mouseenter'));
+        elementDiv.dispatchEvent(new Event('contextmenu'));
+        elementDiv.dispatchEvent(new Event('contextmenu'));
 
         expect(mockHandler).toHaveBeenCalledTimes(1);
         expect(mockMouseHandler).toHaveBeenCalledTimes(1);
@@ -683,8 +702,8 @@ describe('methods', () => {
         const p = elementDiv.querySelector('p');
 
         $div.one('click', 'p', data, mockHandler);
-        p.dispatchEvent(new Event('click'));
-        p.dispatchEvent(new Event('click'));
+        p.dispatchEvent(new Event('click', { bubbles: true }));
+        p.dispatchEvent(new Event('click', { bubbles: true }));
 
         expect(mockHandler).toHaveBeenCalledTimes(1);
         expect(mockHandler.mock.calls[0][0].data).toEqual(data);
@@ -695,8 +714,8 @@ describe('methods', () => {
         const p = elementDiv.querySelector('p');
 
         $div.one('click', 'p', data, mockHandler);
-        p.dispatchEvent(new Event('click'), { bubbles: true });
-        p.dispatchEvent(new Event('click'), { bubbles: true });
+        p.dispatchEvent(new Event('click', { bubbles: true }));
+        p.dispatchEvent(new Event('click', { bubbles: true }));
 
         expect(mockHandler).toHaveBeenCalledTimes(1);
         expect(mockHandler.mock.calls[0][0].data).toEqual(data);
@@ -704,15 +723,36 @@ describe('methods', () => {
     });
 
     describe('one( events [, selector ] [, data ] )', () => {
-      it('should store data but not bind event handler when no handler is provided', () => {
+      it('should handle multiple event types with a plain object and pass data to handlers', () => {
         const $div = $('div');
         const p = elementDiv.querySelector('p');
 
-        $div.one('click', 'p', data);
-        p.dispatchEvent(new Event('click'), { bubbles: true });
+        const mockClickHandler = jest.fn((event) => {
+          expect(event.data).toEqual(data);
+        });
 
-        expect(mockHandler).not.toHaveBeenCalled();
-        expect(p.dataset.foo).toEqual(data.foo);
+        const mockContextHandler = jest.fn((event) => {
+          expect(event.data).toEqual(data);
+        });
+
+        $div.one(
+          {
+            click: mockClickHandler,
+            contextmenu: mockContextHandler,
+          },
+          'p',
+          data
+        );
+        const clickEvent = new Event('click', { bubbles: true });
+        const contextEvent = new Event('contextmenu', { bubbles: true });
+
+        p.dispatchEvent(clickEvent);
+        p.dispatchEvent(contextEvent);
+        p.dispatchEvent(clickEvent);
+        p.dispatchEvent(contextEvent);
+
+        expect(mockClickHandler).toHaveBeenCalledTimes(1);
+        expect(mockContextHandler).toHaveBeenCalledTimes(1);
       });
     });
   });
